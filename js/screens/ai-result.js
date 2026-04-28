@@ -600,13 +600,14 @@ async function _showMilestoneModal(type) {
     body.innerHTML = `
       <div style="font-size:48px;margin-bottom:16px">${isFirst ? '🎉' : '🔥'}</div>
       <p style="color:var(--text-secondary);line-height:1.6;font-size:var(--font-size-sm)">${isFirst
-        ? 'Отмечай приёмы пищи несколько дней, чтобы увидеть статистику по потребляемым КБЖУ. Добавление целей по питанию позволит рассчитывать средние отклонения и упростить достижение целей.'
+        ? 'Отмечай приёмы пищи несколько дней, чтобы увидеть статистику, а чтобы быстрее достигать результата — добавь цели по питанию: так ты сможешь видеть отклонения от намеченных показателей.'
         : 'Ты 5 дней подряд вёл дневник питания. Загляни в раздел статистики, чтобы увидеть сводную информацию за последние дни.'
       }</p>
     `;
     const footer = document.createElement('div');
+    footer.style.cssText = 'display:flex;justify-content:center';
     const btn = document.createElement('button');
-    btn.className = 'btn btn--primary btn--full';
+    btn.className = 'btn btn--primary';
     btn.textContent = isFirst ? 'Супер!' : 'Спасибо!';
     footer.appendChild(btn);
 
