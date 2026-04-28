@@ -58,4 +58,7 @@ export const Events = {
 
   // Limits
   AI_LIMIT_REACHED:       'ai_limit_reached',
+
+  // Errors
+  CONNECTION_ERROR:       'connection_error',
 };

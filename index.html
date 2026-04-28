@@ -180,6 +180,40 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* No-connection overlay */
+    #no-connection {
+      position: fixed;
+      inset: 0;
+      background: #faf4e4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 1000;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .no-connection__icon { font-size: 48px; line-height: 1; }
+    .no-connection__msg {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 17px;
+      color: #2e2416;
+      line-height: 1.55;
+      max-width: 320px;
+    }
+    .no-connection__btn {
+      margin-top: 8px;
+      padding: 13px 28px;
+      background: #9eb26e;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      cursor: pointer;
+    }
+
     /* Visually hidden — скрыто от пользователей, индексируется поисковиками */
     .visually-hidden {
       position: absolute;
@@ -255,18 +289,6 @@
 
   <script type="module" src="js/app.js"></script>
   <script>
-    // Splash is hidden by app.js after auth resolves.
-    // This is a safety fallback in case something goes wrong (max 6s).
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const splash = document.getElementById('splash');
-        if (splash) {
-          splash.classList.add('hidden');
-          setTimeout(() => splash.remove(), 300);
-        }
-      }, 6000);
-    });
-
     // Called by app.js once the first screen is ready
     window.hideSplash = function () {
       const splash = document.getElementById('splash');
@@ -275,6 +297,42 @@
         setTimeout(() => splash.remove(), 300);
       }
     };
+
+    function _showNoConnection() {
+      if (document.getElementById('no-connection')) return;
+      try { ym(108482593, 'reachGoal', 'connection_error'); } catch {}
+      const el = document.createElement('div');
+      el.id = 'no-connection';
+      el.innerHTML = `
+        <div class="no-connection__icon">🌐</div>
+        <p class="no-connection__msg">Не удаётся установить соединение.<br>Рекомендуем проверить сетевые настройки&nbsp;😉</p>
+        <button class="no-connection__btn">Попробовать снова</button>
+      `;
+      el.querySelector('.no-connection__btn').addEventListener('click', () => location.reload());
+      document.body.appendChild(el);
+    }
+
+    // Splash safety fallback (max 6s). If app hasn't rendered anything — show no-connection screen.
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash');
+        if (splash) {
+          splash.classList.add('hidden');
+          setTimeout(() => splash.remove(), 300);
+        }
+        const app = document.getElementById('app');
+        if (app && !app.children.length) {
+          _showNoConnection();
+        }
+      }, 6000);
+    });
+
+    // Detect connection loss at any point during the session
+    window.addEventListener('offline', _showNoConnection);
+    window.addEventListener('online', () => {
+      const el = document.getElementById('no-connection');
+      if (el) el.remove();
+    });
   </script>
 </body>
 </html>
