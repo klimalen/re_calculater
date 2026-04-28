@@ -529,10 +529,30 @@ export async function renderAiResult() {
       const updatedMeals = await getMealsByDate(user.id, dateStr).catch(() => null);
       if (updatedMeals) setState({ meals: updatedMeals });
 
-      // Mark that this user has added at least one meal — used to gate promo banners
+      // Check milestones before marking them done
+      const isFirstMeal = !localStorage.getItem(`has_meal_${user.id}`);
+
+      const _mealDatesKey = `meal_dates_${user.id}`;
+      const _prevDates = JSON.parse(localStorage.getItem(_mealDatesKey) || '[]');
+      const _datesSet = new Set(_prevDates);
+      _datesSet.add(dateStr);
+      const _sortedDates = [..._datesSet].sort();
+      localStorage.setItem(_mealDatesKey, JSON.stringify(_sortedDates));
+
+      const _streak5Key = `meal_milestone_streak5_${user.id}`;
+      const isStreak5 = !localStorage.getItem(_streak5Key) && _hasStreak5(_sortedDates);
+
+      // Mark milestones and existing meal flag as seen
       localStorage.setItem(`has_meal_${user.id}`, '1');
+      if (isStreak5) localStorage.setItem(_streak5Key, '1');
 
       toast.success('Записано!');
+
+      if (isStreak5) {
+        await _showMilestoneModal('streak5');
+      } else if (isFirstMeal) {
+        await _showMilestoneModal('first');
+      }
       navigate('today');
 
     } catch {
@@ -558,6 +578,45 @@ export async function renderAiResult() {
 
   // Start recognition immediately
   _startRecognition();
+}
+
+function _hasStreak5(sortedDates) {
+  if (sortedDates.length < 5) return false;
+  const last5 = sortedDates.slice(-5);
+  for (let i = 1; i < last5.length; i++) {
+    if ((new Date(last5[i]) - new Date(last5[i - 1])) / 86400000 !== 1) return false;
+  }
+  return true;
+}
+
+async function _showMilestoneModal(type) {
+  const { createModal } = await import('../components/modal.js');
+  const isFirst = type === 'first';
+  track(isFirst ? Events.MILESTONE_FIRST_MEAL : Events.MILESTONE_STREAK_5);
+
+  return new Promise(resolve => {
+    const body = document.createElement('div');
+    body.style.cssText = 'text-align:center;padding:4px 0 8px';
+    body.innerHTML = `
+      <div style="font-size:48px;margin-bottom:16px">${isFirst ? '🎉' : '🔥'}</div>
+      <p style="color:var(--text-secondary);line-height:1.6;font-size:var(--font-size-sm)">${isFirst
+        ? 'Отмечай приёмы пищи несколько дней, чтобы увидеть статистику по потребляемым КБЖУ. Добавление целей по питанию позволит рассчитывать средние отклонения и упростить достижение целей.'
+        : 'Ты 5 дней подряд вёл дневник питания. Загляни в раздел статистики, чтобы увидеть сводную информацию за последние дни.'
+      }</p>
+    `;
+    const footer = document.createElement('div');
+    const btn = document.createElement('button');
+    btn.className = 'btn btn--primary btn--full';
+    btn.textContent = isFirst ? 'Супер!' : 'Спасибо!';
+    footer.appendChild(btn);
+
+    const modal = createModal({
+      title: isFirst ? 'Отличное начало!' : 'Потрясающий результат!',
+      body, footer, center: true, onClose: resolve,
+    });
+    btn.addEventListener('click', () => { modal.close(); resolve(); });
+    modal.open();
+  });
 }
 
 /** Compute per-portion values from per100 fields + weight_g.

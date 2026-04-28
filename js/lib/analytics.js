@@ -61,4 +61,8 @@ export const Events = {
 
   // Errors
   CONNECTION_ERROR:       'connection_error',
+
+  // Milestones
+  MILESTONE_FIRST_MEAL:  'milestone_first_meal',
+  MILESTONE_STREAK_5:    'milestone_streak_5',
 };
