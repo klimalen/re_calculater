@@ -605,7 +605,7 @@ async function _showMilestoneModal(type) {
       }</p>
     `;
     const footer = document.createElement('div');
-    footer.style.cssText = 'display:flex;justify-content:center';
+    footer.style.cssText = 'display:flex;justify-content:center;width:100%';
     const btn = document.createElement('button');
     btn.className = 'btn btn--primary';
     btn.textContent = isFirst ? 'Супер!' : 'Спасибо!';
