@@ -1,7 +1,7 @@
 /**
  * AI Provider abstraction layer.
  *
- * CURRENT PROVIDER: Yandex AI Studio — Gemma 3 27B IT (serverless)
+ * CURRENT PROVIDER: Yandex AI Studio — Qwen3.6-35B (serverless, image-text-to-text)
  *
  * Secrets required (Supabase → Project Settings → Edge Functions → Secrets):
  *   YANDEX_API_KEY   — API-ключ из Yandex AI Studio
@@ -31,7 +31,7 @@ export interface AIInput {
 
 const YANDEX_API_KEY   = Deno.env.get('YANDEX_API_KEY') ?? '';
 const YANDEX_FOLDER_ID = Deno.env.get('YANDEX_FOLDER_ID') ?? '';
-const YANDEX_MODEL     = `gpt://${YANDEX_FOLDER_ID}/gemma-3-27b-it/latest`;
+const YANDEX_MODEL     = `gpt://${YANDEX_FOLDER_ID}/qwen3.6-35b/latest`;
 const YANDEX_URL       = 'https://ai.api.cloud.yandex.net/v1/responses';
 
 const SYSTEM_PROMPT = `Ты — нутрициолог-ассистент, специализирующийся на российском рынке питания. Рассчитывай КБЖУ продуктов и блюд. Возвращай ТОЛЬКО валидный JSON без markdown-обёртки и без пояснений.
