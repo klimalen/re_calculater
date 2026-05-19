@@ -144,6 +144,8 @@ if (res.status === 429) throw new Error('RATE_LIMIT_PROVIDER');
     const messageItem = Array.isArray(data?.output)
       ? data.output.find((item: any) => item.type === 'message')
       : null;
+    console.log(`[ai-provider] output types: ${(data?.output || []).map((x: any) => x.type).join(', ')}`);
+    console.log(`[ai-provider] messageItem: ${JSON.stringify(messageItem).slice(0, 600)}`);
     responseText = data?.output_text
       ?? messageItem?.content?.[0]?.text
       ?? messageItem?.content
