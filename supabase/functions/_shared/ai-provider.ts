@@ -134,20 +134,22 @@ export async function recognizeFoodAI(input: AIInput): Promise<AIRecognitionResu
 
     if (!res.ok) {
       const errBody = await res.text().catch(() => '');
-      console.error(`[ai-provider] Yandex API error: status=${res.status}, body=${errBody.slice(0, 500)}`);
-      if (res.status === 429) throw new Error('RATE_LIMIT_PROVIDER');
+if (res.status === 429) throw new Error('RATE_LIMIT_PROVIDER');
       throw new Error(`Yandex AI error ${res.status}: ${errBody.slice(0, 200)}`);
     }
 
     const data = await res.json();
-    console.log(`[ai-provider] output: ${JSON.stringify(data?.output).slice(0, 800)}`);
-    // output_text is a convenience field in the SDK but may not exist in raw API response.
-    // Fall back to the nested structure: output[0].content[0].text
+    // output is an array; for thinking models (e.g. Qwen3) output[0] is the reasoning trace,
+    // the actual message is the item with type === 'message'
+    const messageItem = Array.isArray(data?.output)
+      ? data.output.find((item: any) => item.type === 'message')
+      : null;
     responseText = data?.output_text
+      ?? messageItem?.content?.[0]?.text
+      ?? messageItem?.content
       ?? data?.output?.[0]?.content?.[0]?.text
       ?? data?.output?.[0]?.content
       ?? '';
-    console.log(`[ai-provider] responseText: "${responseText.slice(0, 200)}"`);
   } catch (err: any) {
     clearTimeout(timer);
     if (err.name === 'AbortError') throw new Error('AI_TIMEOUT');
