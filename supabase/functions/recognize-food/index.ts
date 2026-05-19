@@ -122,6 +122,7 @@ serve(async (req) => {
     await _releaseSlot(supabase, user.id, today, /* rollback count */ true);
 
     const msg = err.message || '';
+    console.error(`[recognize-food] catch error: ${msg}`);
     if (msg === 'AI_TIMEOUT')       return _error('AI не ответил вовремя. Попробуйте ещё раз.', 504);
     if (msg === 'RATE_LIMIT_PROVIDER') return _error('AI сервис перегружен. Попробуйте через минуту.', 503);
     if (msg === 'AI_INVALID_JSON' || msg === 'AI_INVALID_FORMAT')
