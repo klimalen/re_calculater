@@ -134,6 +134,7 @@ export async function recognizeFoodAI(input: AIInput): Promise<AIRecognitionResu
 
     if (!res.ok) {
       const errBody = await res.text().catch(() => '');
+      console.error(`[ai-provider] Yandex API error: status=${res.status}, body=${errBody.slice(0, 500)}`);
       if (res.status === 429) throw new Error('RATE_LIMIT_PROVIDER');
       throw new Error(`Yandex AI error ${res.status}: ${errBody.slice(0, 200)}`);
     }
