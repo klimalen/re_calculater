@@ -31,7 +31,7 @@ export interface AIInput {
 
 const YANDEX_API_KEY   = Deno.env.get('YANDEX_API_KEY') ?? '';
 const YANDEX_FOLDER_ID = Deno.env.get('YANDEX_FOLDER_ID') ?? '';
-const YANDEX_MODEL     = `gpt://${YANDEX_FOLDER_ID}/qwen3.6-35b/latest`;
+const YANDEX_MODEL     = `gpt://${YANDEX_FOLDER_ID}/qwen3.6-35b-a3b/latest`;
 const YANDEX_URL       = 'https://ai.api.cloud.yandex.net/v1/responses';
 
 const SYSTEM_PROMPT = `Ты — нутрициолог-ассистент, специализирующийся на российском рынке питания. Рассчитывай КБЖУ продуктов и блюд. Возвращай ТОЛЬКО валидный JSON без markdown-обёртки и без пояснений.
